@@ -1,11 +1,13 @@
 %{
 #include <stdio.h>
+#include <string.h>
 #include "parse.tab.h"
 
 extern void yyerror(const char *s);
 
 #define VTYPE(type, value) printf("%s(%s)\n", type, value)
 #define TOKEN(id) return t##id
+#define KEYWORD(id) return k##id
 %}
 
 %option noyywrap
@@ -15,16 +17,20 @@ NUMBER [0-9](_[0-9]|[0-9])*
 
 %%
 
+class { KEYWORD(CLASS); }
+def   { KEYWORD(DEF);   }
+end   { KEYWORD(END);   }
+
 #.*$ {}
 
-{NUMBER} { yylval = atoi(yytext); TOKEN(NUMBER); }
-{NUMBER}(\.{NUMBER}|(\.{NUMBER})?[eE][+-]?{NUMBER}) { VTYPE("FLOAT", yytext); TOKEN(FLOAT); }
+{NUMBER} { yylval.ival = atoi(yytext); TOKEN(NUMBER); }
+{NUMBER}(\.{NUMBER}|(\.{NUMBER})?[eE][+-]?{NUMBER}) { yylval.fval = atof(yytext); TOKEN(FLOAT); }
 
-\"([^"]|\\.)*\" { VTYPE("STRING", yytext); TOKEN(STRING); }
-\'([^']|\\.)*\' { VTYPE("STRING", yytext); TOKEN(STRING); }
+\"([^"]|\\.)*\" { yylval.sval = strdup(yytext); TOKEN(STRING); }
+\'([^']|\\.)*\' { yylval.sval = strdup(yytext); TOKEN(STRING); }
 
-[a-z_][a-zA-Z0-9_]* { VTYPE("ID", yytext); TOKEN(ID); }
-[A-Z][a-zA-Z0-9_]* { VTYPE("CONSTANT", yytext); TOKEN(CONSTANT); }
+[a-z_][a-zA-Z0-9_]* { yylval.sval = strdup(yytext); TOKEN(ID); }
+[A-Z][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); TOKEN(CONSTANT); }
 
 "=" { TOKEN(EQ);    }
 "+" { TOKEN(PLUS);  }

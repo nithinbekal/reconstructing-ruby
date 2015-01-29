@@ -5,12 +5,21 @@
     extern void yyerror(char const *s);
 %}
 
+%union {
+  int ival;
+  float fval;
+  char *sval;
+}
+
 %left tPLUS
+%right tEQ
 
 %token tSTRING tFLOAT tNUMBER tID tCONSTANT tEQ tGT tLT tGTE tLTE
 %token tNEQ tPLUS tMINUS tMULT tDIV tMOD tEMARK tQMARK tAND tOR
 %token tLSBRACE tRSBRACE tLPAREN tRPAREN tLBRACE tRBRACE tAT tDOT
 %token tCOMMA tCOLON
+
+%token kCLASS kDEF kEND
 
 %start program
 
@@ -21,6 +30,29 @@ program: expressions
 expressions: expressions expression
            | expression
 
-expression: tNUMBER { printf("PARSED(%d)\n", $1); }
-          | expression tPLUS expression { printf("%d\n", $1 + $3); }
+expression: class_definition
+          | binary_expression
+          | method_definition
+          | variable
+          | assignment
+          | method_call
+          | value
+
+class_definition: kCLASS tCONSTANT expressions kEND
+
+binary_expression: expression tPLUS expression
+
+method_definition: kDEF tID expressions kEND
+          | kDEF tID tLPAREN tID tRPAREN expressions kEND
+
+variable: tID
+        | tAT tID
+
+assignment: variable tEQ expression
+
+method_call: variable tDOT tID
+           | tCONSTANT tDOT tID tLPAREN tSTRING tRPAREN
+           | tID tSTRING
+
+value: tNUMBER
 
