@@ -1,4 +1,5 @@
 lex.yy.c
 parse.tab.*
+parse.output
 program.rb
 ruby

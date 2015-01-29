@@ -10,7 +10,7 @@ lex.yy.c: ruby.l
 	flex ruby.l
 
 parse.tab.c: parse.y
-	bison -d parse.y
+	bison -v -d parse.y
 
 clean:
 	rm -rf ruby lex.yy.c parse.tab.c parse.tab.h

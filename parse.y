@@ -4,6 +4,8 @@
     void yyerror(char const *s) { fprintf(stderr, "%s\n", s); }
 %}
 
+%left tPLUS
+
 %token tNUMBER
 %token tPLUS
 
@@ -18,3 +20,4 @@ expressions: expressions expression
 
 expression: tNUMBER { printf("PARSED(%d)\n", $1); }
           | expression tPLUS expression { printf("%d\n", $1 + $3); }
+
