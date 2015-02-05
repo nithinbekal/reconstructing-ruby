@@ -1,15 +1,22 @@
 %{
     #include <stdio.h>
-
-    extern int yylex(void);
-    extern void yyerror(char const *s);
+    #include "node.h"
+    extern void yyerror(struct parser_state *state, const char *s);
 %}
+
+%pure-parser
+%parse-param { parser_state *state }
+%lex-param { state }
 
 %union {
   int ival;
   float fval;
   char *sval;
 }
+
+%{
+  extern int yylex(YYSTYPE *yylval, parser_state *state);
+%}
 
 %left tPLUS
 %right tEQ
@@ -25,7 +32,7 @@
 
 %%
 
-program: expressions
+program: expressions { printf("%s\n", state->source_file); }
 
 expressions: expressions expression
            | expression

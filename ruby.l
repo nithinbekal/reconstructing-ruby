@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 #include "parse.tab.h"
+#include "node.h"
 
 extern void yyerror(const char *s);
 
-#define VTYPE(type, value) printf("%s(%s)\n", type, value)
+#define YY_DECL int yylex(YYSTYPE *yylval, parser_state *state)
 #define TOKEN(id) return t##id
 #define KEYWORD(id) return k##id
 %}
@@ -23,14 +24,14 @@ end   { KEYWORD(END);   }
 
 #.*$ {}
 
-{NUMBER} { yylval.ival = atoi(yytext); TOKEN(NUMBER); }
-{NUMBER}(\.{NUMBER}|(\.{NUMBER})?[eE][+-]?{NUMBER}) { yylval.fval = atof(yytext); TOKEN(FLOAT); }
+{NUMBER} { yylval->ival = atoi(yytext); TOKEN(NUMBER); }
+{NUMBER}(\.{NUMBER}|(\.{NUMBER})?[eE][+-]?{NUMBER}) { yylval->fval = atof(yytext); TOKEN(FLOAT); }
 
-\"([^"]|\\.)*\" { yylval.sval = strdup(yytext); TOKEN(STRING); }
-\'([^']|\\.)*\' { yylval.sval = strdup(yytext); TOKEN(STRING); }
+\"([^"]|\\.)*\" { yylval->sval = strdup(yytext); TOKEN(STRING); }
+\'([^']|\\.)*\' { yylval->sval = strdup(yytext); TOKEN(STRING); }
 
-[a-z_][a-zA-Z0-9_]* { yylval.sval = strdup(yytext); TOKEN(ID); }
-[A-Z][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); TOKEN(CONSTANT); }
+[a-z_][a-zA-Z0-9_]* { yylval->sval = strdup(yytext); TOKEN(ID); }
+[A-Z][a-zA-Z0-9_]*  { yylval->sval = strdup(yytext); TOKEN(CONSTANT); }
 
 "=" { TOKEN(EQ);    }
 "+" { TOKEN(PLUS);  }
